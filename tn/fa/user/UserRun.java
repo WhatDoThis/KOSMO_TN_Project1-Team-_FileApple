@@ -12,7 +12,7 @@ import javax.swing.plaf.synth.SynthOptionPaneUI;
 
 //로그인시에 서버와 연결 클라이언트
 class UserRun extends Thread{
-	
+
 	BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
 	String ip;
