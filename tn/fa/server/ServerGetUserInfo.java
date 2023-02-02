@@ -24,8 +24,6 @@ public class ServerGetUserInfo extends Thread{
 	ServerMain sm;
 
 	
-	
-	
 	ServerGetUserInfo(Socket temp, ServerMain sm){
 		try {
 			s = temp;
@@ -38,7 +36,6 @@ public class ServerGetUserInfo extends Thread{
 			ois = new ObjectInputStream(is);
 			
 			this.sm = sm;
-			
 			
 			getUserInfo();
 			start();

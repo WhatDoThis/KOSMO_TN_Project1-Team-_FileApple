@@ -172,43 +172,27 @@ public class ServerMain extends Thread{
 		usersList.remove(delUser);
 		
 		System.out.println("User 총원(나간 후): " + usersList.size());
-		/*
-	   	System.out.println(usersList.size());
-		for(String ip : usersIpNName.keySet()) {
-			System.out.println(ip);
-		}
-	      
-		//refreshFileList(delUser); 
-		for(ServerGetUserInfo user: usersList) {
-			for(ServerGetUserInfo userData: usersList) {
-				send("refreshusersList", user.dos);
-				send(usersList.size()+"", user.dos);
-				if(!user.ip.equals(delUser.ip)){
-	   				sendUsers(user);
-	    		}
-			}
-		}*/
 	}
 
 	
 	//파일리스트 새로고침
-	void refreshFileList(ServerGetUserInfo wantUser) {
+	void refreshFileList(ServerGetUserInfo wantUser){
 		try {
 			for(ServerGetUserInfo user: usersList){
-				if(!user.ip.equals(wantUser.ip)) {
+				if(!user.ip.equals(wantUser.ip)){
 					send("refreshFileList", user.dos);
 					user.myFileList.clear();
 					user.myFileList = (Hashtable<String, Integer>)user.ois.readObject();
 				}
-			}          
+			}
 		}catch(ClassNotFoundException cnfe){
-		}catch(IOException ie) {}
+		}catch(IOException ie){}
 	}
 
 	
 	//유저 정보를 클라이언트에게 보내기
 	void sendUsers(ServerGetUserInfo user) {
-		try {
+		try{
 			Socket sends = new Socket(user.ip, 6401);
 			OutputStream sendos = sends.getOutputStream();
 			DataOutputStream senddos = new DataOutputStream(sendos);
@@ -223,8 +207,9 @@ public class ServerMain extends Thread{
 			for(String filename : user.myFileList.keySet()) {
 				System.out.println(filename);
 			}
+
 			send(""+usersIpNScore.get(user.ip), senddos);
-			//send(""+(usersList.size()-1), senddos);
+
 			for(ServerGetUserInfo ui : usersList){
 				System.out.println("ui.ip : " + ui.ip);
 				if(!ui.ip.equals(user.ip)) {
@@ -237,24 +222,20 @@ public class ServerMain extends Thread{
 				}
 			}
 			System.out.println("sendUserIp : " + user.ip);
-	         //System.out.println(user.dos.writeu);
-	         //Thread.sleep(3000);
 			send("n", senddos);
-		}catch(IOException ie) {
-		//}catch (InterruptedException e) {
+		}catch(IOException ie){
 		}
 	}
 
 	
 	void send(String str, DataOutputStream dos) {
-		try {
+		try{
 			dos.writeUTF(str);
 			dos.flush();
-		}catch(IOException ie) {
+		}catch(IOException ie){
 		}
 		
 	}
-	
 	
 	
 	void sendMsgAll(String serverMsg) {
@@ -279,9 +260,8 @@ public class ServerMain extends Thread{
 	//소켓연결을 요청함(3)
 	void requestUser(String ip, String port, String wantName, String wantFile, DataOutputStream dos) {
 		int i=0;
-		for(ServerGetUserInfo user: usersList) {
+		for(ServerGetUserInfo user: usersList){
 			if(user.name.equals(wantName)) {
-				//send("userOk", dos);
 				send("wantFile", user.dos);
 				send(ip, user.dos);
 				send(port, user.dos);
@@ -290,7 +270,7 @@ public class ServerMain extends Thread{
 			}
 			i++;
 		}
-		if(usersList.size() == i) {
+		if(usersList.size() == i){
 			send("notOk", dos);
 		}
 	}
@@ -313,7 +293,7 @@ public class ServerMain extends Thread{
 	
 	void nameScoreList() {
 		sUi2.servPntTa.setText("");
-		for(String userLogIp1 : usersIpNName.keySet()) {
+		for(String userLogIp1 : usersIpNName.keySet()){
 			for(String userLogIp2 : usersIpNScore.keySet()) {
 				if(userLogIp1.equals(userLogIp2)) {
 					String sentenceForList = userLogIp1 + "\t" + usersIpNName.get(userLogIp1) + "     \t" + usersIpNScore.get(userLogIp2);
@@ -326,24 +306,20 @@ public class ServerMain extends Thread{
 	
 	// [Ip, Score]에 대한 로그파일 생성(txt)
 	void makeLogTxt() {
-		try
-		{	
+		try{	
 			userLogScoreFW = new FileWriter(logFilePath+"\\"+logScoreFile);
 			userLogScorePW = new PrintWriter(userLogScoreFW);
 			
-			for(String userLogIp : usersIpNScore.keySet()) {
+			for(String userLogIp : usersIpNScore.keySet()){
 				String logSentenceScore = userLogIp + " " + usersIpNScore.get(userLogIp);
 				userLogScorePW.println(logSentenceScore);
 			}
-			
 		}catch(IOException userLogIOE){
 		}finally{
 			try{
-				//if(userLogNamePW != null) userLogNamePW.close();
 				if(userLogScorePW != null) userLogScorePW.close();
-				//if(userLogNameFW != null) userLogNameFW.close();
 				if(userLogScoreFW != null) userLogScoreFW.close();
 			}catch(IOException ioe){}
 		}
-		}
+	}
 }

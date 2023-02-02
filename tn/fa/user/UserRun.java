@@ -12,92 +12,79 @@ import javax.swing.plaf.synth.SynthOptionPaneUI;
 
 //로그인시에 서버와 연결 클라이언트
 class UserRun extends Thread{
-   
-   
+	
 	BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-   
+
 	String ip;
 	String name;
 	String upPath;
 	String downPath;
 	int score;
-   
-   
-   
+
 	Socket s;
 	DatagramSocket singleMsgDs;
 	DatagramPacket singleMsgDp;
 	InetAddress singleUserIA;
 	String serverIp;//수정할것
-   
+
 	int port = 6000;
 	int port2 = 6032;	// 서버공지
 	int port3 = 6033;	// 1:1 쪽지
-   
+
 	InputStream is;
 	OutputStream os;
 	DataInputStream dis;
 	DataOutputStream dos;
 	ObjectInputStream ois;
 	ObjectOutputStream oos;
-   
+
 	Vector<String> showFileList = new Vector<String>();
 	ArrayList<String> msgIpNMsg = new ArrayList<String>();
 	Hashtable<String, Integer> myFileList = new Hashtable<String, Integer>();
 	Hashtable<String, String> usersIpName = new Hashtable<String, String>(); // ip에 대한 닉네임
 	Hashtable<String, Hashtable<String, Integer>> usersIpNFileList = new Hashtable<String, Hashtable<String, Integer>>(); // ip에 파일리스트
-      
+
 	UserUI window;
-	//UserUI mainWindow;
-   
+
 	
 	//서버와 연결
 	void connect() {
 		try {
 			s = new Socket(serverIp, 6000);
-         
 			is = s.getInputStream();
 			dis = new DataInputStream(is);
 			ois = new ObjectInputStream(is);
 			os = s.getOutputStream();
 		   	dos = new DataOutputStream(os);
 		   	oos = new ObjectOutputStream(os);
-         
-	        /*System.out.println("이름 : ");
-	        name = br.readLine().trim();
-	        System.out.println("uppath : ");
-	        upPath = br.readLine();
-	        System.out.println("downpath : ");
-	        downPath = br.readLine();*/
 
-		   	readFileList();
-		   	sendMyInfo();
+			readFileList();
+			sendMyInfo();
 
-		   	getUserInfo();
+			getUserInfo();
 
-		   	start();
-         
-		   	Runnable getUserMsg = ()->{
-		   		getSingleMsg();
-		   	};
-		   	Thread getUMThread = new Thread(getUserMsg);
-		   	getUMThread.start();
-         
-		   	Runnable getNotice = ()->{
-		   		getServerMsg();
-		   	};
-		   	Thread getNThread = new Thread(getNotice);
-		   	getNThread.start();
+			start();
+		
+			Runnable getUserMsg = ()->{
+				getSingleMsg();
+			};
+			Thread getUMThread = new Thread(getUserMsg);
+			getUMThread.start();
+
+			Runnable getNotice = ()->{
+				getServerMsg();
+			};
+			Thread getNThread = new Thread(getNotice);
+			getNThread.start();
 			
 		}catch(IOException ie) {
 			System.out.println("ioecception");
 		}
 	}
-   
+
 	
 	void readFileList() {
 		myFileList.clear();
-	    
 		File userFile = new File(upPath);
 		File[] userFileArray = userFile.listFiles();
 		for(File fileCheck : userFileArray){
@@ -113,9 +100,8 @@ class UserRun extends Thread{
 			}
 		}
 	}
-   
 	
-   //나의 정보를 날려주기
+	//나의 정보를 날려주기
 	void sendMyInfo(){
 		try {
 			ip = dis.readUTF();
@@ -123,7 +109,7 @@ class UserRun extends Thread{
 			oos.writeObject(myFileList);
 		}catch(IOException ie) {}
 	}
-  
+
 	
 	//서버한테 tcp로 문자열 보내기
 	void send(String str) {
@@ -132,7 +118,7 @@ class UserRun extends Thread{
 			dos.writeUTF(str);
 			dos.flush();
 		}catch(IOException ie) {
-		}      
+		}
 	}
 
 	
@@ -142,7 +128,7 @@ class UserRun extends Thread{
 		try {
 			ServerSocket getUIss = new ServerSocket(6401);
 			Socket getUIs = getUIss.accept();
-	         
+
 			InputStream getUIis = getUIs.getInputStream();
 			DataInputStream getUIdis = new DataInputStream(getUIis);
 			ObjectInputStream getUIois = new ObjectInputStream(getUIis);
@@ -156,21 +142,18 @@ class UserRun extends Thread{
 			String getScore = getUIdis.readUTF();
 			score = Integer.parseInt(getScore);
 			while(true){
-	            String temp = getUIdis.readUTF();
-	            
-	            if(temp.equals("n")) break;
-	            	String ip = temp;
+				String temp = getUIdis.readUTF();
 
-	            	String name = getUIdis.readUTF();
+				if(temp.equals("n")) break;
+					String ip = temp;
+					String name = getUIdis.readUTF();
+					Hashtable<String, Integer> usersFileList = (Hashtable<String, Integer>)getUIois.readObject();
+					for(String fileName : usersFileList.keySet()) {
+						showFileList.add(fileName + "   " + name + "   " + usersFileList.get(fileName));
+					}
 
-	            	Hashtable<String, Integer> usersFileList = (Hashtable<String, Integer>)getUIois.readObject();
-      
-	            	for(String fileName : usersFileList.keySet()) {
-	            		showFileList.add(fileName + "   " + name + "   " + usersFileList.get(fileName));
-	            	}
-	                     
-	            	usersIpName.put(ip, name);
-	            	usersIpNFileList.put(ip, usersFileList);
+				usersIpName.put(ip, name);
+				usersIpNFileList.put(ip, usersFileList);
 			}
 			getUIois.close();
 			getUIdis.close();
@@ -259,7 +242,7 @@ class UserRun extends Thread{
 			if(userDS != null) userDS.close();
 		}
 	}
-   
+
 	
 	// 1:1 쪽지 보내기 기능
 	void sendMsgUser(String valName , String singleMsg) {
@@ -285,7 +268,7 @@ class UserRun extends Thread{
 			if(singleMsgDs != null) singleMsgDs.close();
 		}
 	}
-   
+
 	////////////////////////////////////////////////////////////
 	// 1:1 쪽지 받기 기능
 	void getSingleMsg() {
@@ -322,22 +305,22 @@ class UserRun extends Thread{
 		}
 	}
 	
-   
+
 	// 파일 다운로드 해주는 기능
 	void receiveFile(Socket s, String wantFile, String wantName) {
 		InputStream userIS = null;
 		FileInputStream userFIS = null;
 		BufferedInputStream userBIS = null;
-             
+
 		OutputStream userOS = null;
 		FileOutputStream userFOS = null;
 		BufferedOutputStream userBOS = null;
 		try{
-            
+
 			int sizeOfFiles = 1024 * 100;   // 100 KB
 			byte[] fileBuffer = new byte[sizeOfFiles];
 			int bytesAmount = 0;
-            
+
 			userIS = s.getInputStream(); //   소켓에서 읽어오기
 			userBIS = new BufferedInputStream(userIS, sizeOfFiles);
 
@@ -345,7 +328,7 @@ class UserRun extends Thread{
 			wantFile = wantName + "_" + wantFile;
 			userFOS = new FileOutputStream(downPath+ "\\"+ wantFile); // 다운받을 폴더로 파일 이름 정해서 가져오기
 			userBOS = new BufferedOutputStream(userFOS, sizeOfFiles);
-                 
+
 			while ((bytesAmount = userBIS.read(fileBuffer)) != -1) {   // 소켓에서 읽어서 파일 다운로드
 				userBOS.write(fileBuffer, 0, bytesAmount);
 				userBOS.flush();
@@ -362,12 +345,10 @@ class UserRun extends Thread{
 			}catch(IOException ioe){}
 		}
 	}
-   
 
 	public void run(){
 		response();
 	}
-   
 	
 	//파일 다운을 요청받으면 소켓연결해서 파일 보내주기(4)//파일리스트 새로고침을 받으면 리스트 보내주기
 	void response(){
@@ -419,11 +400,11 @@ class UserRun extends Thread{
 				oos.close();
 				ois.close();
 				is.close();
-        	 	os.close();
-        	 	Thread.sleep(2000);
-        	 	System.exit(-1);
-         	}catch(IOException ie){
-         	}catch(InterruptedException ine) {}
+			 	os.close();
+				Thread.sleep(2000);
+				System.exit(-1);
+			}catch(IOException ie){
+			}catch(InterruptedException ine) {}
 		}
 	}
    
@@ -476,8 +457,7 @@ class UserRun extends Thread{
 	void getName(String userIp, String userName) {
 		usersIpName.put(userIp, userName);
 	}
-      
-      
+
 	void getFileList(String userIp, Hashtable<String, Integer> userFileList) {
 		usersIpNFileList.put(userIp, userFileList);
 	}

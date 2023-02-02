@@ -49,9 +49,7 @@ class ServerUI implements ActionListener{
 	static ServerMain sgu;
 
 	static ServerUI window2;
-	/**
-	* Launch the application.
-	*/
+
 	public static void main(String[] args) {
 		System.setProperty("file.encoding","UTF-8");
 		try{
@@ -72,19 +70,12 @@ class ServerUI implements ActionListener{
 			}
 		});
 	}
-   
 
-	/**
-	* Create the application.
-	*/
 	ServerUI() {
 		initialize();
 		initialize2();
 	}
 
-	/**
-	* Initialize the contents of the frame.
-	*/
 	String browse() {
 		chooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 		chooser.setCurrentDirectory(new File("/"));
@@ -103,6 +94,7 @@ class ServerUI implements ActionListener{
 
 		return folderPath;
 	}
+
 	void initialize() {
 		servFrame1 = new JFrame();
 		servFrame1.setTitle("FileApple Server ver 1.0");
@@ -154,6 +146,7 @@ class ServerUI implements ActionListener{
 		servBrowseB.addActionListener(this);
 		servInP.add(servBrowseB);
 	}
+
 	void initialize2() {
 		servFrame2 = new JFrame();
 		servFrame2.setTitle("FileApple Server ver 1.0");
@@ -240,7 +233,6 @@ class ServerUI implements ActionListener{
 		servMaBgL.setHorizontalAlignment(SwingConstants.CENTER);
 		servInP.setBackground(new Color(255, 220, 100));
 		servInP.setForeground(new Color(255, 220, 100));
-      //servMaBgL.setIcon(new ImageIcon("C:\\박종서\\java\\Advanced\\eclipse\\workspace\\ServerMain\\ServerMain\\src\\tn\\fa\\Background.png"));
 		servMaBgL.setBounds(0, 0, 757, 804);
 		servMainP.add(servMaBgL);
 	}
